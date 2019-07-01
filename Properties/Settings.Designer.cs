@@ -88,7 +88,7 @@ namespace dataSync.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("美好家园")]
+        [global::System.Configuration.DefaultSettingValueAttribute("张言")]
         public string user {
             get {
                 return ((string)(this["user"]));
@@ -97,7 +97,7 @@ namespace dataSync.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("mhju@ch.ch")]
+        [global::System.Configuration.DefaultSettingValueAttribute("zy@ch.ch")]
         public string email {
             get {
                 return ((string)(this["email"]));

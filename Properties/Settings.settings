@@ -24,10 +24,10 @@
       <Value Profile="(Default)">myGTpasswd32@</Value>
     </Setting>
     <Setting Name="user" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">美好家园</Value>
+      <Value Profile="(Default)">张言</Value>
     </Setting>
     <Setting Name="email" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">mhju@ch.ch</Value>
+      <Value Profile="(Default)">zy@ch.ch</Value>
     </Setting>
     <Setting Name="repoUri" Type="System.String" Scope="Application">
       <Value Profile="(Default)">https://gitee.com/h-bar/Data.git</Value>

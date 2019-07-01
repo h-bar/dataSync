@@ -127,6 +127,7 @@ namespace dataSync
             StreamWriter thefileWriter = File.AppendText(thefilePath);
             thefileWriter.Write("a");
             thefileWriter.Flush();
+            thefileWriter.Close();
             repo.Index.Add(thefile);
             repo.Index.Add(dbfile);
             repo.Index.Write();
@@ -143,11 +144,13 @@ namespace dataSync
             {
                 dataStatus.Text = lastAuthor + "正在使用数据文件";
                 logger.Error(lastAuthor + " is using the file");
+                launchButton.IsEnabled = false;
                 return false;
             }
 
             logger.Debug("data available");
             dataStatus.Text = "数据文件可以使用";
+            launchButton.IsEnabled = true;
             return true;
         }
 
@@ -214,6 +217,12 @@ namespace dataSync
             logger.Debug("Sync button pressed");
             pull();
             dataAvailablity();
+        }
+
+        private void UploadData(object sender, RoutedEventArgs e)
+        {
+            logger.Debug("Upload button pressed");
+            push();
         }
 
         private void LaunchApp(object sender, RoutedEventArgs e)
