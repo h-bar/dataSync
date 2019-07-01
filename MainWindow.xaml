@@ -1,0 +1,29 @@
+﻿<Window x:Class="dataSync.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:dataSync"
+        mc:Ignorable="d"
+        Title="珠宝管理软件启动器" Height="95" Width="320">
+    <StackPanel>
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock>同步状态：</TextBlock>
+                <TextBlock Name="syncStatus" Text="{Binding Path=syncStatusStr}"></TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock>数据状态：</TextBlock>
+                <TextBlock Name="dataStatus" Text="{Binding Path=dataStatusStr}">启动系统前请先同步数据</TextBlock>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+            <Button Name="syncButton" Click="SyncData" Margin="2">
+                同步
+            </Button>
+            <Button Name="launchButton" Click="LaunchApp" Margin="2" IsEnabled="False">
+                启动系统
+            </Button>
+        </StackPanel>
+    </StackPanel>
+</Window>

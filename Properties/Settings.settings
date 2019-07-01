@@ -1,0 +1,33 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="dataSync.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="thefile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">thefile</Value>
+    </Setting>
+    <Setting Name="dbfile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">leader.db</Value>
+    </Setting>
+    <Setting Name="path" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\宝如珠宝首饰管理系统单机版v8.0;C:\Users\663ya\Downloads\宝如珠宝首饰管理系统单机版v8.0</Value>
+    </Setting>
+    <Setting Name="repoDir" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Data</Value>
+    </Setting>
+    <Setting Name="app" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">lg2004.exe</Value>
+    </Setting>
+    <Setting Name="gitUsername" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">h-bar@qq.com</Value>
+    </Setting>
+    <Setting Name="gitPasswd" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">myGTpasswd32@</Value>
+    </Setting>
+    <Setting Name="user" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">美好家园</Value>
+    </Setting>
+    <Setting Name="email" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">mhju@ch.ch</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
