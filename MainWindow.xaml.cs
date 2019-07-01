@@ -18,8 +18,7 @@ namespace dataSync
     {
         private static string thefile = Properties.Settings.Default.thefile;
         private static string dbfile = Properties.Settings.Default.dbfile;
-        private static string path = Properties.Settings.Default.path;
-
+        private static string repoUri = Properties.Settings.Default.repoUri;
         private static string user = Properties.Settings.Default.user;
         private static string email = Properties.Settings.Default.email;
 
@@ -40,9 +39,10 @@ namespace dataSync
             }
         }
 
-        private static string repoPath = System.IO.Path.Combine(rootPath, Properties.Settings.Default.repoDir);
-        private static string thefilePath = System.IO.Path.Combine(repoPath, Properties.Settings.Default.thefile);
-        private static string appPath = System.IO.Path.Combine(rootPath, Properties.Settings.Default.app);
+        private static string repoPath = Path.Combine(rootPath, Properties.Settings.Default.repoDir);
+        private static string thefilePath = Path.Combine(repoPath, thefile);
+        private static string dbfilePath = Path.Combine(repoPath, dbfile);
+        private static string appPath = Path.Combine(rootPath, Properties.Settings.Default.app);
 
         public static Identity id = new Identity(user, email);
         private static StreamWriter thefileWriter = File.AppendText(thefilePath);
@@ -54,12 +54,27 @@ namespace dataSync
                 Username = Properties.Settings.Default.gitUsername,
                 Password = Properties.Settings.Default.gitPasswd
             });
-        private static LibGit2Sharp.Signature signature = new LibGit2Sharp.Signature(id, DateTimeOffset.Now);
-        private static NLog.Logger logger = NLog.LogManager.GetLogger("fileLogger");
+        private static Signature signature = new Signature(id, DateTimeOffset.Now);
+        private static Logger logger = LogManager.GetLogger("fileLogger");
 
+        private void clone()
+        {
+            CloneOptions options = new CloneOptions();
+            options.CredentialsProvider = credential;
+            try
+            {
+                logger.Debug("Cloning repo...");
+                Repository.Clone(repoUri, repoPath, options);
+            }
+            catch (Exception e)
+            {
+                logger.Debug("Cloning failed: " + e.Message);
+            }
+            
+        }
         private bool pull()
         {
-            LibGit2Sharp.PullOptions options = new LibGit2Sharp.PullOptions();
+            PullOptions options = new PullOptions();
             options.FetchOptions = new FetchOptions();
             options.FetchOptions.CredentialsProvider = credential;
             syncStatus.Text = "数据更新中。。。";
@@ -75,16 +90,18 @@ namespace dataSync
             {
                 syncStatus.Text = "数据更新失败，请点击手动同步重试";
                 logger.Error("Pull failed: " + e.Message);
+                initButton.IsEnabled = true;
                 return false;
             }
             syncStatus.Text = "数据更新完成";
             logger.Debug("Pull success");
+            initButton.IsEnabled = false;
             return true;
         }
 
         private bool push()
         {
-            LibGit2Sharp.PushOptions options = new LibGit2Sharp.PushOptions();
+            PushOptions options = new PushOptions();
             options.CredentialsProvider = credential;
             logger.Debug("Downloading...");
             try
@@ -159,6 +176,17 @@ namespace dataSync
             launchButton.IsEnabled = true;
         }
 
+        private void InitData(object sender, RoutedEventArgs e)
+        {
+            logger.Debug("Init button pressed");
+            string tempdb = Path.Combine(rootPath, "tempdb");
+            File.Move(dbfilePath, tempdb);
+            Directory.Delete(repoPath);
+            clone();
+            File.Move(tempdb, dbfilePath);
+            repo = new Repository(repoPath);
+            commitChange("release");
+        }
         private void SyncData(object sender, RoutedEventArgs e)
         {
             logger.Debug("Sync button pressed");
@@ -172,6 +200,7 @@ namespace dataSync
             if (!pull()) { return; }
             launchButton.IsEnabled = false;
             syncButton.IsEnabled = false;
+            initButton.IsEnabled = false;
             if (!(commitChange("lock"))) { return; }
             launch();
             commitChange("release");

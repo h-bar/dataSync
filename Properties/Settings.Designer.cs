@@ -103,5 +103,14 @@ namespace dataSync.Properties {
                 return ((string)(this["email"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://gitee.com/h-bar/Data.git")]
+        public string repoUri {
+            get {
+                return ((string)(this["repoUri"]));
+            }
+        }
     }
 }
