@@ -21,7 +21,7 @@
             <Button Name="syncButton" Click="SyncData" Margin="2">
                 同步数据
             </Button>
-            <Button Name="uploadButton" Click="UploadData" Margin="2">
+            <Button Name="uploadButton" Click="UploadData" Margin="2" IsEnabled="False">
                 上传数据
             </Button>
             <Button Name="launchButton" Click="LaunchApp" Margin="2" IsEnabled="False">

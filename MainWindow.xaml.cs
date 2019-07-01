@@ -88,7 +88,7 @@ namespace dataSync
             }
             catch (Exception e)
             {
-                syncStatus.Text = "数据更新失败，请点击手动同步重试";
+                syncStatus.Text = "数据更新失败，请点击同步数据重试";
                 logger.Error("Pull failed: " + e.Message);
                 //initButton.IsEnabled = true;
                 launchButton.IsEnabled = false;
@@ -113,12 +113,14 @@ namespace dataSync
             }
             catch (Exception e)
             {
-                syncStatus.Text = "数据上传失败，请点击手动同步重试";
+                syncStatus.Text = "数据上传失败，请点击上传数据重试";
                 logger.Error("Push failed: " + e.ToString());
+                uploadButton.IsEnabled = true;
                 return false;
             }
             syncStatus.Text = "数据上传完成，可关闭此窗口";
             logger.Debug("Push success");
+            uploadButton.IsEnabled = false;
             return true;
         }
 
