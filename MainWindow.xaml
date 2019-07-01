@@ -24,9 +24,9 @@
             <Button Name="launchButton" Click="LaunchApp" Margin="2" IsEnabled="False">
                 启动系统
             </Button>
-            <Button Name="initButton" Click="InitData" Margin="2" IsEnabled="False">
+            <!--<Button Name="initButton" Click="InitData" Margin="2" IsEnabled="False">
                 初始化数据
-            </Button>
+            </Button>-->
         </StackPanel>
     </StackPanel>
 </Window>

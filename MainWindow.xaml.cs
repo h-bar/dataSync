@@ -45,8 +45,6 @@ namespace dataSync
         private static string appPath = Path.Combine(rootPath, Properties.Settings.Default.app);
 
         public static Identity id = new Identity(user, email);
-        private static StreamWriter thefileWriter = File.AppendText(thefilePath);
-        private static Repository repo = new Repository(repoPath);
         private static CredentialsHandler credential = new CredentialsHandler(
         (url, usernameFromUrl, types) =>
             new UsernamePasswordCredentials()
@@ -56,6 +54,8 @@ namespace dataSync
             });
         private static Signature signature = new Signature(id, DateTimeOffset.Now);
         private static Logger logger = LogManager.GetLogger("fileLogger");
+
+        private Repository repo;
 
         private void clone()
         {
@@ -90,12 +90,14 @@ namespace dataSync
             {
                 syncStatus.Text = "数据更新失败，请点击手动同步重试";
                 logger.Error("Pull failed: " + e.Message);
-                initButton.IsEnabled = true;
+                //initButton.IsEnabled = true;
+                launchButton.IsEnabled = false;
                 return false;
             }
             syncStatus.Text = "数据更新完成";
             logger.Debug("Pull success");
-            initButton.IsEnabled = false;
+            //initButton.IsEnabled = false;
+            launchButton.IsEnabled = true;
             return true;
         }
 
@@ -122,6 +124,7 @@ namespace dataSync
 
         private bool commitChange(string status)
         {
+            StreamWriter thefileWriter = File.AppendText(thefilePath);
             thefileWriter.Write("a");
             thefileWriter.Flush();
             repo.Index.Add(thefile);
@@ -171,6 +174,21 @@ namespace dataSync
             logger.Debug("=======================");
             logger.Debug("=======================");
             logger.Debug("Program started");
+
+            try
+            {
+                repo = new Repository(repoPath);
+            }
+            catch (Exception e)
+            {
+                if(Directory.Exists(repoPath))
+                {
+                    Directory.Delete(repoPath, true);
+                }
+
+                clone();
+                repo = new Repository(repoPath);
+            }
             if (!(pull())) { return; }
             if (!(dataAvailablity())) { return; }
             launchButton.IsEnabled = true;
@@ -179,11 +197,15 @@ namespace dataSync
         private void InitData(object sender, RoutedEventArgs e)
         {
             logger.Debug("Init button pressed");
-            string tempdb = Path.Combine(rootPath, "tempdb");
-            File.Move(dbfilePath, tempdb);
-            Directory.Delete(repoPath);
+            string temppath = Path.Combine(rootPath, "tempdata");
+            string tempdbpath = Path.Combine(temppath, dbfile);
+            Directory.Move(repoPath, temppath);
             clone();
-            File.Move(tempdb, dbfilePath);
+
+            if (File.Exists(tempdbpath))
+            {
+                File.Move(tempdbpath, dbfilePath);
+            }
             repo = new Repository(repoPath);
             commitChange("release");
         }
@@ -200,7 +222,7 @@ namespace dataSync
             if (!pull()) { return; }
             launchButton.IsEnabled = false;
             syncButton.IsEnabled = false;
-            initButton.IsEnabled = false;
+            //initButton.IsEnabled = false;
             if (!(commitChange("lock"))) { return; }
             launch();
             commitChange("release");
