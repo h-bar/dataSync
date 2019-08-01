@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Windows;
-
 using System.IO;
 using System.Diagnostics;
-
+using System.Threading.Tasks;
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
 using NLog;
@@ -58,7 +57,6 @@ namespace dataSync
 
         private string prepareRepo()
         {
-            prompt.Text = "准备数据。。。"; 
             try
             {
                 logger.Info("Prepare repo object");
@@ -73,7 +71,6 @@ namespace dataSync
         }
         private string pull()
         {
-            prompt.Text = "下载数据。。。";
             PullOptions options = new PullOptions();
             options.FetchOptions = new FetchOptions();
             options.FetchOptions.CredentialsProvider = credential;
@@ -92,7 +89,6 @@ namespace dataSync
         }
         private string push()
         {
-            prompt.Text = "上传数据。。。";
             PushOptions options = new PushOptions();
             options.CredentialsProvider = credential;
             try
@@ -110,14 +106,15 @@ namespace dataSync
 
         private string commitChange(string status)
         {
-            prompt.Text = "更改数据状态。。。";
             try
             {
                 logger.Info("Write a to the file");
-                StreamWriter thefileWriter = File.AppendText(thefilePath);
-                thefileWriter.Write("a");
-                thefileWriter.Flush();
-                thefileWriter.Close();
+                using (StreamWriter thefileWriter = File.AppendText(thefilePath))
+                {  
+                    thefileWriter.Write("a");
+                    thefileWriter.Flush();
+                    thefileWriter.Close();
+                }
 
                 logger.Info("Add files to git index");
                 repo.Index.Add(thefile);
@@ -136,7 +133,6 @@ namespace dataSync
         }
         private string dataAvailablity()
         {
-            prompt.Text = "检查数据可用性";
             logger.Info("Checking data availablity");
             string lastAuthor = repo.Head.Tip.Author.Name;
             string lastCommit = repo.Head.Tip.Message;
@@ -151,7 +147,6 @@ namespace dataSync
 
         private string launch()
         {
-            prompt.Text = "启动软件。。。";
             ProcessStartInfo brSystem = new ProcessStartInfo();
             brSystem.FileName = appPath;
             brSystem.WorkingDirectory = rootPath;
@@ -178,6 +173,57 @@ namespace dataSync
             }
         }
 
+        private void MainTasks()
+        {
+            Dispatcher.BeginInvoke((Action) (() =>
+            {
+                prompt.Text = "准备数据。。。"; 
+            }));
+            errorCheck(prepareRepo());
+
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                prompt.Text = "下载数据。。。";
+            }));
+            errorCheck(pull());
+
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                prompt.Text = "检查数据可用性。。。";
+            }));
+            errorCheck(dataAvailablity());
+
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                prompt.Text = "锁定数据。。。";
+            }));
+            errorCheck(commitChange("lock"));
+
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                prompt.Text = "上传数据。。。";
+            }));
+            errorCheck(push());
+
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                prompt.Text = "启动软件。。。";
+            }));
+            errorCheck(launch());
+
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                prompt.Text = "释放数据。。。";
+            }));
+
+            errorCheck(commitChange("release"));
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                prompt.Text = "上传数据。。。";
+            }));
+            errorCheck(push());
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -188,14 +234,7 @@ namespace dataSync
             logger.Info("=======================");
             logger.Info("Program started");
 
-            errorCheck(prepareRepo());
-            errorCheck(pull());
-            errorCheck(dataAvailablity());
-            errorCheck(push());
-            errorCheck(commitChange("lock"));
-            errorCheck(launch());
-            errorCheck(commitChange("release"));
-            errorCheck(push());
+            Task.Run(MainTasks);
         }
     }
 }
