@@ -215,13 +215,20 @@ namespace dataSync
             {
                 prompt.Text = "释放数据。。。";
             }));
-
             errorCheck(commitChange("release"));
-            Dispatcher.BeginInvoke((Action)(() =>
+
+            string msg = "dummy";
+            int i = 0;
+            while (msg != "")
             {
-                prompt.Text = "上传数据。。。";
-            }));
-            errorCheck(push());
+                MessageBox.Show("点击确认上传数据", "提示", MessageBoxButton.OK);
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    prompt.Text = "上传数据, 第" + i + "次尝试";
+                }));
+                msg = push();
+                i += 1;
+            }
         }
 
         public MainWindow()
