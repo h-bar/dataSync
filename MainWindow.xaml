@@ -5,31 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:dataSync"
         mc:Ignorable="d"
-        Title="珠宝管理软件启动器" Height="95" Width="320">
+        Title="珠宝管理软件启动器" Height="80" Width="320">
     <StackPanel>
-        <StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock>同步状态：</TextBlock>
-                <TextBlock Name="syncStatus" Text="{Binding Path=syncStatusStr}"></TextBlock>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock>数据状态：</TextBlock>
-                <TextBlock Name="dataStatus" Text="{Binding Path=dataStatusStr}">启动系统前请先同步数据</TextBlock>
-            </StackPanel>
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
-            <Button Name="syncButton" Click="SyncData" Margin="2">
-                同步数据
-            </Button>
-            <Button Name="uploadButton" Click="UploadData" Margin="2" IsEnabled="False">
-                上传数据
-            </Button>
-            <Button Name="launchButton" Click="LaunchApp" Margin="2" IsEnabled="False">
-                启动系统
-            </Button>
-            <!--<Button Name="initButton" Click="InitData" Margin="2" IsEnabled="False">
-                初始化数据
-            </Button>-->
-        </StackPanel>
+        <TextBlock Name="prompt" Text="系统启动中。。。请不要强制停止或关机" />
+        <ProgressBar IsIndeterminate="True" Name="pBar" Margin="0,5,0,0"/>
     </StackPanel>
 </Window>

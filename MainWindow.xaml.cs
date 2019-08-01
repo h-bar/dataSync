@@ -52,193 +52,150 @@ namespace dataSync
                 Username = Properties.Settings.Default.gitUsername,
                 Password = Properties.Settings.Default.gitPasswd
             });
-        private static Signature signature = new Signature(id, DateTimeOffset.Now);
         private static Logger logger = LogManager.GetLogger("fileLogger");
 
         private Repository repo;
 
-        private void clone()
+        private string prepareRepo()
         {
-            CloneOptions options = new CloneOptions();
-            options.CredentialsProvider = credential;
+            prompt.Text = "准备数据。。。"; 
             try
             {
-                logger.Debug("Cloning repo...");
-                Repository.Clone(repoUri, repoPath, options);
+                logger.Info("Prepare repo object");
+                repo = new Repository(repoPath);
             }
-            catch (Exception e)
+            catch(Exception e)
             {
-                logger.Debug("Cloning failed: " + e.Message);
+                logger.Error("Prepare repo failed: " + e.Message);
+                return e.Message;
             }
-            
+            return "";
         }
-        private bool pull()
+        private string pull()
         {
+            prompt.Text = "下载数据。。。";
             PullOptions options = new PullOptions();
             options.FetchOptions = new FetchOptions();
             options.FetchOptions.CredentialsProvider = credential;
-            syncStatus.Text = "数据更新中。。。";
-            logger.Debug("Updating...");
-
             try
             {
-                logger.Debug("Pulling from remote");
-                var result = Commands.Pull(repo, signature, options);
-                logger.Debug(result.Status);
+                logger.Info("Pull from remote");
+                var result = Commands.Pull(repo, new Signature(id, DateTimeOffset.Now), options);
+                logger.Info(result.Status);
             }
             catch (Exception e)
             {
-                syncStatus.Text = "数据更新失败，请点击同步数据重试";
                 logger.Error("Pull failed: " + e.Message);
-                //initButton.IsEnabled = true;
-                launchButton.IsEnabled = false;
-                return false;
+                return e.Message;
             }
-            syncStatus.Text = "数据更新完成";
-            logger.Debug("Pull success");
-            //initButton.IsEnabled = false;
-            launchButton.IsEnabled = true;
-            return true;
+            return "";
         }
-
-        private bool push()
+        private string push()
         {
+            prompt.Text = "上传数据。。。";
             PushOptions options = new PushOptions();
             options.CredentialsProvider = credential;
-            logger.Debug("Downloading...");
             try
             {
-                logger.Debug("Pushing to remote");
+                logger.Info("Push to remote");
                 repo.Network.Push(repo.Head, options);
             }
             catch (Exception e)
             {
-                syncStatus.Text = "数据上传失败，请点击上传数据重试";
-                logger.Error("Push failed: " + e.ToString());
-                uploadButton.IsEnabled = true;
-                return false;
+                logger.Error("Push failed: " + e.Message);
+                return e.Message;
             }
-            syncStatus.Text = "数据上传完成，可关闭此窗口";
-            logger.Debug("Push success");
-            uploadButton.IsEnabled = false;
-            return true;
+            return "";
         }
 
-        private bool commitChange(string status)
+        private string commitChange(string status)
         {
-            StreamWriter thefileWriter = File.AppendText(thefilePath);
-            thefileWriter.Write("a");
-            thefileWriter.Flush();
-            thefileWriter.Close();
-            repo.Index.Add(thefile);
-            repo.Index.Add(dbfile);
-            repo.Index.Write();
-            repo.Commit(status, signature, signature);
-            return push();
-        }
+            prompt.Text = "更改数据状态。。。";
+            try
+            {
+                logger.Info("Write a to the file");
+                StreamWriter thefileWriter = File.AppendText(thefilePath);
+                thefileWriter.Write("a");
+                thefileWriter.Flush();
+                thefileWriter.Close();
 
-        private bool dataAvailablity()
+                logger.Info("Add files to git index");
+                repo.Index.Add(thefile);
+                repo.Index.Add(dbfile);
+                repo.Index.Write();
+
+                logger.Info("Commit message");
+                repo.Commit(status, new Signature(id, DateTimeOffset.Now), new Signature(id, DateTimeOffset.Now));
+            }
+            catch (Exception e)
+            {
+                logger.Error("Push failed: " + e.Message);
+                return e.Message;
+            }
+            return "";
+        }
+        private string dataAvailablity()
         {
-            logger.Debug("Checking data availablity");
+            prompt.Text = "检查数据可用性";
+            logger.Info("Checking data availablity");
             string lastAuthor = repo.Head.Tip.Author.Name;
             string lastCommit = repo.Head.Tip.Message;
             if (lastAuthor != user && lastCommit.Contains("lock"))
             {
-                dataStatus.Text = lastAuthor + "正在使用数据文件";
-                logger.Error(lastAuthor + " is using the file");
-                launchButton.IsEnabled = false;
-                return false;
+                string msg = lastAuthor + " 正在使用数据文件";
+                logger.Error(msg);
+                return msg;
             }
-
-            logger.Debug("data available");
-            dataStatus.Text = "数据文件可以使用";
-            launchButton.IsEnabled = true;
-            return true;
+            return "";
         }
 
-        private void launch()
+        private string launch()
         {
+            prompt.Text = "启动软件。。。";
             ProcessStartInfo brSystem = new ProcessStartInfo();
             brSystem.FileName = appPath;
             brSystem.WorkingDirectory = rootPath;
-
-            logger.Debug("Launch the software");
-            using (Process proc = Process.Start(brSystem))
+            try
             {
-                proc.WaitForExit();
+                logger.Info("Launch the software");
+                Process.Start(brSystem).WaitForExit();
+                logger.Info("The software is exited");
             }
-            logger.Debug("The software is endded");
+            catch (Exception e)
+            {
+                logger.Error("Launch software error: " + e.Message);
+                return e.Message;
+            }
+            return "";
+        }
+
+        private void errorCheck(string errorM)
+        {
+            if (errorM != "")
+            {
+                MessageBox.Show(errorM, "错误", MessageBoxButton.OK);
+                Environment.Exit(0);
+            }
         }
 
         public MainWindow()
         {
             InitializeComponent();
-            logger.Debug("");
-            logger.Debug("=======================");
-            logger.Debug("=======================");
-            logger.Debug("=======================");
-            logger.Debug("=======================");
-            logger.Debug("Program started");
+            logger.Info("");
+            logger.Info("=======================");
+            logger.Info("=======================");
+            logger.Info("=======================");
+            logger.Info("=======================");
+            logger.Info("Program started");
 
-            try
-            {
-                repo = new Repository(repoPath);
-            }
-            catch (Exception e)
-            {
-                if(Directory.Exists(repoPath))
-                {
-                    Directory.Delete(repoPath, true);
-                }
-
-                clone();
-                repo = new Repository(repoPath);
-            }
-            if (!(pull())) { return; }
-            if (!(dataAvailablity())) { return; }
-            launchButton.IsEnabled = true;
-        }
-
-        private void InitData(object sender, RoutedEventArgs e)
-        {
-            logger.Debug("Init button pressed");
-            string temppath = Path.Combine(rootPath, "tempdata");
-            string tempdbpath = Path.Combine(temppath, dbfile);
-            Directory.Move(repoPath, temppath);
-            clone();
-
-            if (File.Exists(tempdbpath))
-            {
-                File.Move(tempdbpath, dbfilePath);
-            }
-            repo = new Repository(repoPath);
-            commitChange("release");
-        }
-        private void SyncData(object sender, RoutedEventArgs e)
-        {
-            logger.Debug("Sync button pressed");
-            pull();
-            dataAvailablity();
-        }
-
-        private void UploadData(object sender, RoutedEventArgs e)
-        {
-            logger.Debug("Upload button pressed");
-            push();
-        }
-
-        private void LaunchApp(object sender, RoutedEventArgs e)
-        {
-            logger.Debug("Launch button pressed");
-            if (!pull()) { return; }
-            launchButton.IsEnabled = false;
-            syncButton.IsEnabled = false;
-            //initButton.IsEnabled = false;
-            if (!(commitChange("lock"))) { return; }
-            launch();
-            commitChange("release");
-            launchButton.IsEnabled = true;
-            syncButton.IsEnabled = true;
+            errorCheck(prepareRepo());
+            errorCheck(pull());
+            errorCheck(dataAvailablity());
+            errorCheck(push());
+            errorCheck(commitChange("lock"));
+            errorCheck(launch());
+            errorCheck(commitChange("release"));
+            errorCheck(push());
         }
     }
 }
