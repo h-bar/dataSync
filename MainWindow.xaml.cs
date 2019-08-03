@@ -218,17 +218,18 @@ namespace dataSync
             errorCheck(commitChange("release"));
 
             string msg = "dummy";
-            int i = 0;
+            int i = 1;
             while (msg != "")
             {
                 MessageBox.Show("点击确认上传数据", "提示", MessageBoxButton.OK);
                 Dispatcher.BeginInvoke((Action)(() =>
                 {
-                    prompt.Text = "上传数据, 第" + i + "次尝试";
+                    prompt.Text = "上传数据, 第" + i + "次尝试，请勿关闭此窗口";
                 }));
                 msg = push();
                 i += 1;
             }
+            Environment.Exit(0);
         }
 
         public MainWindow()
