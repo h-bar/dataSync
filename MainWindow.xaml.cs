@@ -91,6 +91,14 @@ namespace dataSync
         {
             PushOptions options = new PushOptions();
             options.CredentialsProvider = credential;
+            options.OnPushTransferProgress = (current, total, bytes) =>
+            {
+                Dispatcher.BeginInvoke((Action)(() =>
+                {
+                    pbBar.Value = current / total * 70 + 30;
+                }));
+                return true;
+            };
             try
             {
                 logger.Info("Push to remote");
@@ -177,41 +185,57 @@ namespace dataSync
         {
             Dispatcher.BeginInvoke((Action) (() =>
             {
-                prompt.Text = "准备数据。。。"; 
+                prompt.Text = "准备数据。。。";
+                pbBar.Value = 0;
             }));
+
             errorCheck(prepareRepo());
 
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 prompt.Text = "下载数据。。。";
+                pbBar.Value = 10;
             }));
             errorCheck(pull());
 
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 prompt.Text = "检查数据可用性。。。";
+                pbBar.Value = 20;
             }));
             errorCheck(dataAvailablity());
 
             Dispatcher.BeginInvoke((Action)(() =>
             {
+                pbBar.Value = 25;
                 prompt.Text = "锁定数据。。。";
             }));
             errorCheck(commitChange("lock"));
+
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                pbBar.Value = 30;
+            }));
             errorCheck(push());
 
             Dispatcher.BeginInvoke((Action)(() =>
             {
+                pbBar.Value = 100;
                 prompt.Text = "启动软件。。。";
             }));
             errorCheck(launch());
 
             Dispatcher.BeginInvoke((Action)(() =>
             {
+                pbBar.Value = 0;
                 prompt.Text = "释放数据。。。";
             }));
             errorCheck(commitChange("release"));
 
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                pbBar.Value = 30;
+            }));
             string msg = "dummy";
             int i = 1;
             while (msg != "")

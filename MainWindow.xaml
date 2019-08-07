@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:dataSync"
         mc:Ignorable="d"
         Closing="Window_Closing"
-        Title="珠宝管理软件启动器" Height="60" Width="300">
-    <StackPanel Margin="5,0">
+        Title="珠宝管理软件启动器" Height="80" Width="300">
+    <StackPanel Margin="5,0" Height="30">
         <TextBlock Name="prompt" />
+        <ProgressBar Name="pbBar" Height="8" Margin="0,5,0,0" Minimum="0" Maximum="100"></ProgressBar>
     </StackPanel>
 </Window>
