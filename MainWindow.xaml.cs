@@ -198,11 +198,6 @@ namespace dataSync
                 prompt.Text = "锁定数据。。。";
             }));
             errorCheck(commitChange("lock"));
-
-            Dispatcher.BeginInvoke((Action)(() =>
-            {
-                prompt.Text = "上传数据。。。";
-            }));
             errorCheck(push());
 
             Dispatcher.BeginInvoke((Action)(() =>
@@ -229,9 +224,15 @@ namespace dataSync
                 msg = push();
                 i += 1;
             }
+            logger.Info("Push success after " + i + "tries");
             Environment.Exit(0);
         }
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+            MessageBox.Show("请勿在数据同步或使用过程中退出", "提示", MessageBoxButton.OK);
+        }
         public MainWindow()
         {
             InitializeComponent();

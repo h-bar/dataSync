@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:dataSync"
         mc:Ignorable="d"
+        Closing="Window_Closing"
         Title="珠宝管理软件启动器" Height="60" Width="300">
     <StackPanel Margin="5,0">
         <TextBlock Name="prompt" />
