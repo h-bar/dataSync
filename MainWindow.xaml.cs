@@ -236,19 +236,27 @@ namespace dataSync
             {
                 pbBar.Value = 30;
             }));
+
             string msg = "dummy";
             int i = 1;
+            Dispatcher.BeginInvoke((Action)(() =>
+            {
+                prompt.Text = "上传数据, 第" + i + "次尝试，请勿关闭此窗口";
+            }));
+            msg = push();
+
             while (msg != "")
             {
+                i += 1;
                 MessageBox.Show("点击确认上传数据", "提示", MessageBoxButton.OK);
                 Dispatcher.BeginInvoke((Action)(() =>
                 {
                     prompt.Text = "上传数据, 第" + i + "次尝试，请勿关闭此窗口";
                 }));
                 msg = push();
-                i += 1;
             }
             logger.Info("Push success after " + i + "tries");
+            MessageBox.Show("数据上传成功！", "提示", MessageBoxButton.OK);
             Environment.Exit(0);
         }
 
